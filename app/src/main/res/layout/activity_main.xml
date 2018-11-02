@@ -4,95 +4,21 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:divider="@drawable/empty_tall_divider"
     android:orientation="vertical"
-    android:padding="20dp"
-    tools:context=".MainActivity">
+    >
 
-    <LinearLayout
-
+    <android.support.design.widget.TabLayout
+        android:id="@+id/sliding_tabs"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_weight="0"
-        android:padding="20dp"
-        android:divider="@drawable/empty_tall_divider"
-        android:orientation="horizontal">
+        app:tabMode="fixed">
 
-
-        <EditText
-           android:layout_marginRight="10dp"
-            android:id="@+id/etUnos"
-            android:layout_weight="1"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="number" />
-
-            <Spinner
-                android:id="@+id/spFrom"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:layout_constraintLeft_toRightOf="@id/etUnos"></Spinner>
-
-    </LinearLayout>
-
-    <LinearLayout
+    </android.support.design.widget.TabLayout>
+    <android.support.v4.view.ViewPager
+        android:id="@+id/viewPager"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:divider="@drawable/empty_tall_divider"
-        android:orientation="horizontal"
-        android:padding="20dp">
-
-        <EditText
-            android:id="@+id/etUnos1"
-            android:layout_weight="1"
-            android:layout_marginRight="10dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:inputType="number" />
-
-        <Spinner
-            android:id="@+id/spTo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"></Spinner>
-    </LinearLayout>
-
-
-    <RadioGroup
-
-        android:padding="20dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:orientation="horizontal">
-
-        <RadioButton
-            android:id="@+id/rbSelling"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Selling" />
-
-        <RadioButton
-            android:id="@+id/rbMedian"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Median" />
-
-        <RadioButton
-            android:id="@+id/rbBuying"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Buying" />
-    </RadioGroup>
-
-
-    <Button
-        android:id="@+id/btnPreracunaj"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="Convert" />
-
+        android:layout_height="0px"
+        android:layout_weight="1">
+    </android.support.v4.view.ViewPager>
 
 </LinearLayout>
