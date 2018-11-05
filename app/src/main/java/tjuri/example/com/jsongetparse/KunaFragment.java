@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.RadioButton;
@@ -27,14 +28,16 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 
+
 import static android.content.ContentValues.TAG;
 
 
 public class KunaFragment extends Fragment {
 
+
     Spinner spinner;
     Spinner spinner1;
-
+    ArrayList<String> allList;
     ArrayList<String> valutetList;
     ArrayList<String> valutetSelling;
     ArrayList<String> valutetBuying;
@@ -49,7 +52,7 @@ public class KunaFragment extends Fragment {
     RadioButton rbSelling;
     RadioButton rbMedian;
     RadioButton rbBuying;
-
+    int currentItem = 0;
 
     double izracun;
     DecimalFormat df;
@@ -66,12 +69,22 @@ public class KunaFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         initWidgets();
         new getRates().execute();
-        setlistener();
-        //etListener();
+
         df = new DecimalFormat("#.##");
+        getFocused();
+        spinnerListener();
+
+        Bundle bundle = new Bundle();
+        bundle.putStringArrayList("valute", allList); // Put anything what you want
+        ListaFragment fragment2 = new ListaFragment();
+        fragment2.setArguments(bundle);
+
+        getFragmentManager()
+                .beginTransaction()
+                .replace(R.id.hee, fragment2)
+                .commit();
 
     }
-
 
     private class getRates extends AsyncTask<Void, Void, Void> {
 
@@ -111,7 +124,11 @@ public class KunaFragment extends Fragment {
                     valutetBuying.add(buying);
                     valutetValue.add(value);
                     valutetMedian.add(median);
-
+                    allList.add(code);
+                    allList.add(selling);
+                    allList.add(buying);
+                    allList.add(median);
+                    allList.add(value);
                 }
 
 
@@ -155,490 +172,230 @@ public class KunaFragment extends Fragment {
         }
     }
 
-    public void setlistener() {
 
-        getView().findViewById(R.id.btnPreracunaj).setOnClickListener(new View.OnClickListener() {
+    TextWatcher tw = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            calculateRates();
+
+            if (s.toString().length() == 0) {
+                if (etUnos.hasFocus())
+                    etUnos1.getText().clear();
+                else if (etUnos1.hasFocus())
+                    etUnos.getText().clear();
+            }
+
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+
+
+        }
+    };
+
+    public void getFocused() {
+        etUnos.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
-            public void onClick(View v) {
-                double selling;
-                double selling1;
-                double buying;
-                double buying1;
-                double median;
-                double median1;
-                int value;
-                int value1;
-                sp = spinner.getSelectedItemPosition();
-                sp1 = spinner1.getSelectedItemPosition();
-                double unos;
-
-
-                if (rbSelling.isChecked()) {
-
-                    selling = Double.parseDouble(valutetSelling.get(sp));
-                    selling1 = Double.parseDouble(valutetSelling.get(sp1));
-
-
-                    if (!etUnos.getText().toString().equals("") && etUnos.hasFocus()) {
-                        value = Integer.parseInt(valutetValue.get(sp));
-                        value1 = Integer.parseInt(valutetValue.get(sp1));
-                        unos = Double.parseDouble(etUnos.getText().toString());
-                        if (value == value1) {
-
-
-                            izracun = (selling / selling1) * unos;
-                            etUnos1.setText(df.format(izracun));
-                        } else if (value == 1 && value1 == 100) {
-                            izracun = ((selling / selling1) * unos) * value1;
-                            etUnos1.setText(df.format(izracun));
-
-                        } else if (value == 100 && value1 == 1) {
-                            izracun = (selling / selling1) * unos / value;
-                            etUnos1.setText(df.format(izracun));
-
-                        }
-
-                    } else if (!etUnos1.getText().toString().equals("") && etUnos1.hasFocus()) {
-                        value = Integer.parseInt(valutetValue.get(sp));
-                        value1 = Integer.parseInt(valutetValue.get(sp1));
-                        unos = Double.parseDouble(etUnos1.getText().toString());
-                        if (value == value1) {
-                            izracun = ((selling1 / selling) * unos);
-                            etUnos.setText(df.format(izracun));
-                        } else if (value == 1 && value1 == 100) {
-                            izracun = ((selling1 / selling) * unos) / value1;
-                            etUnos.setText(df.format(izracun));
-
-                        } else if (value == 100 && value1 == 1) {
-                            izracun = (selling1 / selling) * unos * value;
-                            etUnos.setText(df.format(izracun));
-
-                        }
-                    }
-
-
-                } else if (rbBuying.isChecked()) {
-
-                    buying = Double.parseDouble(valutetBuying.get(sp));
-                    buying1 = Double.parseDouble(valutetBuying.get(sp1));
-
-
-                    if (!etUnos.getText().toString().equals("") && etUnos.hasFocus()) {
-                        value = Integer.parseInt(valutetValue.get(sp));
-                        value1 = Integer.parseInt(valutetValue.get(sp1));
-                        unos = Double.parseDouble(etUnos.getText().toString());
-                        if (value == value1) {
-
-
-                            izracun = (buying / buying1) * unos;
-                            etUnos1.setText(df.format(izracun));
-                        } else if (value == 1 && value1 == 100) {
-                            izracun = ((buying / buying1) * unos) * value1;
-                            etUnos1.setText(df.format(izracun));
-
-                        } else if (value == 100 && value1 == 1) {
-                            izracun = (buying / buying1) * unos / value;
-                            etUnos1.setText(df.format(izracun));
-
-                        }
-
-                    } else if (!etUnos1.getText().toString().equals("") && etUnos1.hasFocus()) {
-                        value = Integer.parseInt(valutetValue.get(sp));
-                        value1 = Integer.parseInt(valutetValue.get(sp1));
-                        unos = Double.parseDouble(etUnos1.getText().toString());
-                        if (value == value1) {
-                            izracun = ((buying1 / buying) * unos);
-                            etUnos.setText(df.format(izracun));
-                        } else if (value == 1 && value1 == 100) {
-                            izracun = ((buying1 / buying) * unos) / value1;
-                            etUnos.setText(df.format(izracun));
-
-                        } else if (value == 100 && value1 == 1) {
-                            izracun = (buying1 / buying) * unos * value;
-                            etUnos.setText(df.format(izracun));
-
-                        }
-                    }
-
-
-                } else if (rbMedian.isChecked() && etUnos1.getText() != null) {
-
-                    median = Double.parseDouble(valutetMedian.get(sp));
-                    median1 = Double.parseDouble(valutetMedian.get(sp1));
-
-
-                    if (!etUnos.getText().toString().equals("") && etUnos.hasFocus()) {
-                        value = Integer.parseInt(valutetValue.get(sp));
-                        value1 = Integer.parseInt(valutetValue.get(sp1));
-                        unos = Double.parseDouble(etUnos.getText().toString());
-                        if (value == value1) {
-
-
-                            izracun = (median / median1) * unos;
-                            etUnos1.setText(df.format(izracun));
-                        } else if (value == 1 && value1 == 100) {
-                            izracun = ((median / median1) * unos) * value;
-                            etUnos1.setText(df.format(izracun));
-
-                        } else if (value == 100 && value1 == 1) {
-                            izracun = (median / median1) * unos / value1;
-                            etUnos1.setText(df.format(izracun));
-
-                        }
-
-                    } else if (!etUnos1.getText().toString().equals("") && etUnos1.hasFocus()) {
-                        value = Integer.parseInt(valutetValue.get(sp));
-                        value1 = Integer.parseInt(valutetValue.get(sp1));
-                        unos = Double.parseDouble(etUnos1.getText().toString());
-                        if (value == value1) {
-                            izracun = ((median1 / median) * unos);
-                            etUnos.setText(df.format(izracun));
-                        } else if (value == 1 && value1 == 100) {
-                            izracun = ((median1 / median) * unos) / value1;
-                            etUnos.setText(df.format(izracun));
-
-                        } else if (value == 100 && value1 == 1) {
-                            izracun = (median1 / median) * unos * value;
-                            etUnos.setText(df.format(izracun));
-
-                        }
-                    }
-
-
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (etUnos.hasFocus()) {
+                    etUnos1.removeTextChangedListener(tw);
+                    etUnos.addTextChangedListener(tw);
+                } else if (etUnos1.hasFocus()) {
+                    etUnos1.addTextChangedListener(tw);
+                    etUnos.removeTextChangedListener(tw);
                 }
-
             }
         });
     }
 
-    public void etListener() {
-
-        etUnos.addTextChangedListener(new TextWatcher() {
+    public void spinnerListener() {
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                double selling;
-                double selling1;
-                double buying;
-                double buying1;
-                double median;
-                double median1;
-                int value;
-                int value1;
-                sp = spinner.getSelectedItemPosition();
-                sp1 = spinner1.getSelectedItemPosition();
-                double unos;
-
-
-                if (rbSelling.isChecked()) {
-
-                    selling = Double.parseDouble(valutetSelling.get(sp));
-                    selling1 = Double.parseDouble(valutetSelling.get(sp1));
-
-
-                    if (!etUnos.getText().toString().equals("") && etUnos.hasFocus()) {
-                        value = Integer.parseInt(valutetValue.get(sp));
-                        value1 = Integer.parseInt(valutetValue.get(sp1));
-                        unos = Double.parseDouble(etUnos.getText().toString());
-                        if (value == value1) {
-
-
-                            izracun = (selling / selling1) * unos;
-                            etUnos1.setText(df.format(izracun));
-                        } else if (value == 1 && value1 == 100) {
-                            izracun = ((selling / selling1) * unos) * value1;
-                            etUnos1.setText(df.format(izracun));
-
-                        } else if (value == 100 && value1 == 1) {
-                            izracun = (selling / selling1) * unos / value;
-                            etUnos1.setText(df.format(izracun));
-
-                        }
-
-                    } else if (!etUnos1.getText().toString().equals("") && etUnos1.hasFocus()) {
-                        value = Integer.parseInt(valutetValue.get(sp));
-                        value1 = Integer.parseInt(valutetValue.get(sp1));
-                        unos = Double.parseDouble(etUnos1.getText().toString());
-                        if (value == value1) {
-                            izracun = ((selling1 / selling) * unos);
-                            etUnos.setText(df.format(izracun));
-                        } else if (value == 1 && value1 == 100) {
-                            izracun = ((selling1 / selling) * unos) / value1;
-                            etUnos.setText(df.format(izracun));
-
-                        } else if (value == 100 && value1 == 1) {
-                            izracun = (selling1 / selling) * unos * value;
-                            etUnos.setText(df.format(izracun));
-
-                        }
-                    }
-
-
-                } else if (rbBuying.isChecked()) {
-
-                    buying = Double.parseDouble(valutetBuying.get(sp));
-                    buying1 = Double.parseDouble(valutetBuying.get(sp1));
-
-
-                    if (!etUnos.getText().toString().equals("") && etUnos.hasFocus()) {
-                        value = Integer.parseInt(valutetValue.get(sp));
-                        value1 = Integer.parseInt(valutetValue.get(sp1));
-                        unos = Double.parseDouble(etUnos.getText().toString());
-                        if (value == value1) {
-
-
-                            izracun = (buying / buying1) * unos;
-                            etUnos1.setText(df.format(izracun));
-                        } else if (value == 1 && value1 == 100) {
-                            izracun = ((buying / buying1) * unos) * value1;
-                            etUnos1.setText(df.format(izracun));
-
-                        } else if (value == 100 && value1 == 1) {
-                            izracun = (buying / buying1) * unos / value;
-                            etUnos1.setText(df.format(izracun));
-
-                        }
-
-                    } else if (!etUnos1.getText().toString().equals("") && etUnos1.hasFocus()) {
-                        value = Integer.parseInt(valutetValue.get(sp));
-                        value1 = Integer.parseInt(valutetValue.get(sp1));
-                        unos = Double.parseDouble(etUnos1.getText().toString());
-                        if (value == value1) {
-                            izracun = ((buying1 / buying) * unos);
-                            etUnos.setText(df.format(izracun));
-                        } else if (value == 1 && value1 == 100) {
-                            izracun = ((buying1 / buying) * unos) / value1;
-                            etUnos.setText(df.format(izracun));
-
-                        } else if (value == 100 && value1 == 1) {
-                            izracun = (buying1 / buying) * unos * value;
-                            etUnos.setText(df.format(izracun));
-
-                        }
-                    }
-
-
-                } else if (rbMedian.isChecked() && etUnos1.getText() != null) {
-
-                    median = Double.parseDouble(valutetMedian.get(sp));
-                    median1 = Double.parseDouble(valutetMedian.get(sp1));
-
-
-                    if (!etUnos.getText().toString().equals("") && etUnos.hasFocus()) {
-                        value = Integer.parseInt(valutetValue.get(sp));
-                        value1 = Integer.parseInt(valutetValue.get(sp1));
-                        unos = Double.parseDouble(etUnos.getText().toString());
-                        if (value == value1) {
-
-
-                            izracun = (median / median1) * unos;
-                            etUnos1.setText(df.format(izracun));
-                        } else if (value == 1 && value1 == 100) {
-                            izracun = ((median / median1) * unos) * value;
-                            etUnos1.setText(df.format(izracun));
-
-                        } else if (value == 100 && value1 == 1) {
-                            izracun = (median / median1) * unos / value1;
-                            etUnos1.setText(df.format(izracun));
-
-                        }
-
-                    } else if (!etUnos1.getText().toString().equals("") && etUnos1.hasFocus()) {
-                        value = Integer.parseInt(valutetValue.get(sp));
-                        value1 = Integer.parseInt(valutetValue.get(sp1));
-                        unos = Double.parseDouble(etUnos1.getText().toString());
-                        if (value == value1) {
-                            izracun = ((median1 / median) * unos);
-                            etUnos.setText(df.format(izracun));
-                        } else if (value == 1 && value1 == 100) {
-                            izracun = ((median1 / median) * unos) / value1;
-                            etUnos.setText(df.format(izracun));
-
-                        } else if (value == 100 && value1 == 1) {
-                            izracun = (median1 / median) * unos * value;
-                            etUnos.setText(df.format(izracun));
-
-                        }
-                    }
-
-
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (currentItem == position) {
+                    return; //do nothing
+                } else {
+                    calculateRates();
                 }
+                currentItem = position;
             }
 
             @Override
-            public void afterTextChanged(Editable s) {
+            public void onNothingSelected(AdapterView<?> parent) {
 
             }
         });
 
-
-        etUnos1.addTextChangedListener(new TextWatcher() {
+        spinner1.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                double selling;
-                double selling1;
-                double buying;
-                double buying1;
-                double median;
-                double median1;
-                int value;
-                int value1;
-                sp = spinner.getSelectedItemPosition();
-                sp1 = spinner1.getSelectedItemPosition();
-                double unos;
-
-
-                if (rbSelling.isChecked()) {
-
-                    selling = Double.parseDouble(valutetSelling.get(sp));
-                    selling1 = Double.parseDouble(valutetSelling.get(sp1));
-
-
-                    if (!etUnos.getText().toString().equals("") && etUnos.hasFocus()) {
-                        value = Integer.parseInt(valutetValue.get(sp));
-                        value1 = Integer.parseInt(valutetValue.get(sp1));
-                        unos = Double.parseDouble(etUnos.getText().toString());
-                        if (value == value1) {
-
-
-                            izracun = (selling / selling1) * unos;
-                            etUnos1.setText(df.format(izracun));
-                        } else if (value == 1 && value1 == 100) {
-                            izracun = ((selling / selling1) * unos) * value1;
-                            etUnos1.setText(df.format(izracun));
-
-                        } else if (value == 100 && value1 == 1) {
-                            izracun = (selling / selling1) * unos / value;
-                            etUnos1.setText(df.format(izracun));
-
-                        }
-
-                    } else if (!etUnos1.getText().toString().equals("") && etUnos1.hasFocus()) {
-                        value = Integer.parseInt(valutetValue.get(sp));
-                        value1 = Integer.parseInt(valutetValue.get(sp1));
-                        unos = Double.parseDouble(etUnos1.getText().toString());
-                        if (value == value1) {
-                            izracun = ((selling1 / selling) * unos);
-                            etUnos.setText(df.format(izracun));
-                        } else if (value == 1 && value1 == 100) {
-                            izracun = ((selling1 / selling) * unos) / value1;
-                            etUnos.setText(df.format(izracun));
-
-                        } else if (value == 100 && value1 == 1) {
-                            izracun = (selling1 / selling) * unos * value;
-                            etUnos.setText(df.format(izracun));
-
-                        }
-                    }
-
-
-                } else if (rbBuying.isChecked()) {
-
-                    buying = Double.parseDouble(valutetBuying.get(sp));
-                    buying1 = Double.parseDouble(valutetBuying.get(sp1));
-
-
-                    if (!etUnos.getText().toString().equals("") && etUnos.hasFocus()) {
-                        value = Integer.parseInt(valutetValue.get(sp));
-                        value1 = Integer.parseInt(valutetValue.get(sp1));
-                        unos = Double.parseDouble(etUnos.getText().toString());
-                        if (value == value1) {
-
-
-                            izracun = (buying / buying1) * unos;
-                            etUnos1.setText(df.format(izracun));
-                        } else if (value == 1 && value1 == 100) {
-                            izracun = ((buying / buying1) * unos) * value1;
-                            etUnos1.setText(df.format(izracun));
-
-                        } else if (value == 100 && value1 == 1) {
-                            izracun = (buying / buying1) * unos / value;
-                            etUnos1.setText(df.format(izracun));
-
-                        }
-
-                    } else if (!etUnos1.getText().toString().equals("") && etUnos1.hasFocus()) {
-                        value = Integer.parseInt(valutetValue.get(sp));
-                        value1 = Integer.parseInt(valutetValue.get(sp1));
-                        unos = Double.parseDouble(etUnos1.getText().toString());
-                        if (value == value1) {
-                            izracun = ((buying1 / buying) * unos);
-                            etUnos.setText(df.format(izracun));
-                        } else if (value == 1 && value1 == 100) {
-                            izracun = ((buying1 / buying) * unos) / value1;
-                            etUnos.setText(df.format(izracun));
-
-                        } else if (value == 100 && value1 == 1) {
-                            izracun = (buying1 / buying) * unos * value;
-                            etUnos.setText(df.format(izracun));
-
-                        }
-                    }
-
-
-                } else if (rbMedian.isChecked() && etUnos1.getText() != null) {
-
-                    median = Double.parseDouble(valutetMedian.get(sp));
-                    median1 = Double.parseDouble(valutetMedian.get(sp1));
-
-
-                    if (!etUnos.getText().toString().equals("") && etUnos.hasFocus()) {
-                        value = Integer.parseInt(valutetValue.get(sp));
-                        value1 = Integer.parseInt(valutetValue.get(sp1));
-                        unos = Double.parseDouble(etUnos.getText().toString());
-                        if (value == value1) {
-
-
-                            izracun = (median / median1) * unos;
-                            etUnos1.setText(df.format(izracun));
-                        } else if (value == 1 && value1 == 100) {
-                            izracun = ((median / median1) * unos) * value;
-                            etUnos1.setText(df.format(izracun));
-
-                        } else if (value == 100 && value1 == 1) {
-                            izracun = (median / median1) * unos / value1;
-                            etUnos1.setText(df.format(izracun));
-
-                        }
-
-                    } else if (!etUnos1.getText().toString().equals("") && etUnos1.hasFocus()) {
-                        value = Integer.parseInt(valutetValue.get(sp));
-                        value1 = Integer.parseInt(valutetValue.get(sp1));
-                        unos = Double.parseDouble(etUnos1.getText().toString());
-                        if (value == value1) {
-                            izracun = ((median1 / median) * unos);
-                            etUnos.setText(df.format(izracun));
-                        } else if (value == 1 && value1 == 100) {
-                            izracun = ((median1 / median) * unos) / value1;
-                            etUnos.setText(df.format(izracun));
-
-                        } else if (value == 100 && value1 == 1) {
-                            izracun = (median1 / median) * unos * value;
-                            etUnos.setText(df.format(izracun));
-
-                        }
-                    }
-
-
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (currentItem == position) {
+                    return; //do nothing
+                } else {
+                    calculateRates();
                 }
+                currentItem = position;
             }
 
             @Override
-            public void afterTextChanged(Editable s) {
+            public void onNothingSelected(AdapterView<?> parent) {
 
             }
         });
 
+    }
 
+    public void calculateRates() {
+        double selling;
+        double selling1;
+        double buying;
+        double buying1;
+        double median;
+        double median1;
+        int value;
+        int value1;
+        sp = spinner.getSelectedItemPosition();
+        sp1 = spinner1.getSelectedItemPosition();
+        double unos;
+
+
+        if (rbSelling.isChecked()) {
+
+            selling = Double.parseDouble(valutetSelling.get(sp));
+            selling1 = Double.parseDouble(valutetSelling.get(sp1));
+
+
+            if (!etUnos.getText().toString().equals("") && etUnos.hasFocus()) {
+                value = Integer.parseInt(valutetValue.get(sp));
+                value1 = Integer.parseInt(valutetValue.get(sp1));
+                unos = Double.parseDouble(etUnos.getText().toString());
+                if (value == value1) {
+                    izracun = (selling / selling1) * unos;
+                    etUnos1.setText(df.format(izracun));
+                } else if (value == 1 && value1 == 100) {
+                    izracun = ((selling / selling1) * unos) * value1;
+                    etUnos1.setText(df.format(izracun));
+
+                } else if (value == 100 && value1 == 1) {
+                    izracun = (selling / selling1) * unos / value;
+                    etUnos1.setText(df.format(izracun));
+
+                }
+
+            } else if (!etUnos1.getText().toString().equals("") && etUnos1.hasFocus()) {
+                value = Integer.parseInt(valutetValue.get(sp));
+                value1 = Integer.parseInt(valutetValue.get(sp1));
+                unos = Double.parseDouble(etUnos1.getText().toString());
+                if (value == value1) {
+                    izracun = ((selling1 / selling) * unos);
+                    etUnos.setText(df.format(izracun));
+                } else if (value == 1 && value1 == 100) {
+                    izracun = ((selling1 / selling) * unos) / value1;
+                    etUnos.setText(df.format(izracun));
+
+                } else if (value == 100 && value1 == 1) {
+                    izracun = (selling1 / selling) * unos * value;
+                    etUnos.setText(df.format(izracun));
+
+                }
+            }
+
+
+        } else if (rbBuying.isChecked()) {
+
+            buying = Double.parseDouble(valutetBuying.get(sp));
+            buying1 = Double.parseDouble(valutetBuying.get(sp1));
+
+
+            if (!etUnos.getText().toString().equals("") && etUnos.hasFocus()) {
+                value = Integer.parseInt(valutetValue.get(sp));
+                value1 = Integer.parseInt(valutetValue.get(sp1));
+                unos = Double.parseDouble(etUnos.getText().toString());
+                if (value == value1) {
+
+
+                    izracun = (buying / buying1) * unos;
+                    etUnos1.setText(df.format(izracun));
+                } else if (value == 1 && value1 == 100) {
+                    izracun = ((buying / buying1) * unos) * value1;
+                    etUnos1.setText(df.format(izracun));
+
+                } else if (value == 100 && value1 == 1) {
+                    izracun = (buying / buying1) * unos / value;
+                    etUnos1.setText(df.format(izracun));
+
+                }
+
+            } else if (!etUnos1.getText().toString().equals("") && etUnos1.hasFocus()) {
+                value = Integer.parseInt(valutetValue.get(sp));
+                value1 = Integer.parseInt(valutetValue.get(sp1));
+                unos = Double.parseDouble(etUnos1.getText().toString());
+                if (value == value1) {
+                    izracun = ((buying1 / buying) * unos);
+                    etUnos.setText(df.format(izracun));
+                } else if (value == 1 && value1 == 100) {
+                    izracun = ((buying1 / buying) * unos) / value1;
+                    etUnos.setText(df.format(izracun));
+
+                } else if (value == 100 && value1 == 1) {
+                    izracun = (buying1 / buying) * unos * value;
+                    etUnos.setText(df.format(izracun));
+
+                }
+            }
+
+
+        } else if (rbMedian.isChecked() && etUnos1.getText() != null) {
+
+            median = Double.parseDouble(valutetMedian.get(sp));
+            median1 = Double.parseDouble(valutetMedian.get(sp1));
+
+
+            if (!etUnos.getText().toString().equals("") && etUnos.hasFocus()) {
+                value = Integer.parseInt(valutetValue.get(sp));
+                value1 = Integer.parseInt(valutetValue.get(sp1));
+                unos = Double.parseDouble(etUnos.getText().toString());
+                if (value == value1) {
+
+
+                    izracun = (median / median1) * unos;
+                    etUnos1.setText(df.format(izracun));
+                } else if (value == 1 && value1 == 100) {
+                    izracun = ((median / median1) * unos) * value;
+                    etUnos1.setText(df.format(izracun));
+
+                } else if (value == 100 && value1 == 1) {
+                    izracun = (median / median1) * unos / value1;
+                    etUnos1.setText(df.format(izracun));
+
+                }
+
+            } else if (!etUnos1.getText().toString().equals("") && etUnos1.hasFocus()) {
+                value = Integer.parseInt(valutetValue.get(sp));
+                value1 = Integer.parseInt(valutetValue.get(sp1));
+                unos = Double.parseDouble(etUnos1.getText().toString());
+                if (value == value1) {
+                    izracun = ((median1 / median) * unos);
+                    etUnos.setText(df.format(izracun));
+                } else if (value == 1 && value1 == 100) {
+                    izracun = ((median1 / median) * unos) / value1;
+                    etUnos.setText(df.format(izracun));
+
+                } else if (value == 100 && value1 == 1) {
+                    izracun = (median1 / median) * unos * value;
+                    etUnos.setText(df.format(izracun));
+
+                }
+            }
+
+
+        }
     }
 
 
@@ -655,6 +412,7 @@ public class KunaFragment extends Fragment {
         valutetBuying = new ArrayList<>();
         valutetMedian = new ArrayList<>();
         valutetValue = new ArrayList<>();
+        allList = new ArrayList<>();
         rbMedian.setChecked(true);
 
     }
