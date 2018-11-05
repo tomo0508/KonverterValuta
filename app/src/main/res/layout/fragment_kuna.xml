@@ -26,7 +26,7 @@
             android:layout_weight="1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="number" />
+            android:inputType="numberDecimal" />
 
         <Spinner
             android:id="@+id/spFrom"
@@ -50,7 +50,7 @@
             android:layout_marginRight="10dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:inputType="number" />
+            android:inputType="numberDecimal" />
 
         <Spinner
             android:id="@+id/spTo"
@@ -60,7 +60,7 @@
 
 
     <RadioGroup
-
+android:id="@+id/rgCheck"
         android:padding="20dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

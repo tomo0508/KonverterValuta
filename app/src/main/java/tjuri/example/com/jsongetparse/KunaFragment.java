@@ -16,6 +16,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -49,6 +50,7 @@ public class KunaFragment extends Fragment {
     EditText etUnos;
     EditText etUnos1;
 
+    RadioGroup rgCheck;
     RadioButton rbSelling;
     RadioButton rbMedian;
     RadioButton rbBuying;
@@ -70,10 +72,10 @@ public class KunaFragment extends Fragment {
         initWidgets();
         new getRates().execute();
 
-        df = new DecimalFormat("#.##");
+        df = new DecimalFormat("#,###,##0.00");
         getFocused();
         spinnerListener();
-
+        radioListener();
         Bundle bundle = new Bundle();
         bundle.putStringArrayList("valute", allList); // Put anything what you want
         ListaFragment fragment2 = new ListaFragment();
@@ -251,6 +253,19 @@ public class KunaFragment extends Fragment {
 
     }
 
+    public void radioListener() {
+        rgCheck.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+
+
+                    calculateRates();
+
+
+            }
+        });
+    }
+
     public void calculateRates() {
         double selling;
         double selling1;
@@ -367,11 +382,11 @@ public class KunaFragment extends Fragment {
                     izracun = (median / median1) * unos;
                     etUnos1.setText(df.format(izracun));
                 } else if (value == 1 && value1 == 100) {
-                    izracun = ((median / median1) * unos) * value;
+                    izracun = ((median / median1) * unos) * value1;
                     etUnos1.setText(df.format(izracun));
 
                 } else if (value == 100 && value1 == 1) {
-                    izracun = (median / median1) * unos / value1;
+                    izracun = (median / median1) * unos / value;
                     etUnos1.setText(df.format(izracun));
 
                 }
@@ -407,6 +422,7 @@ public class KunaFragment extends Fragment {
         rbSelling = getView().findViewById(R.id.rbSelling);
         rbMedian = getView().findViewById(R.id.rbMedian);
         rbBuying = getView().findViewById(R.id.rbBuying);
+        rgCheck = getView().findViewById(R.id.rgCheck);
         valutetList = new ArrayList<>();
         valutetSelling = new ArrayList<>();
         valutetBuying = new ArrayList<>();
